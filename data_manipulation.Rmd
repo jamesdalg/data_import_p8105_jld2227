@@ -1,0 +1,111 @@
+---
+title: "Data Wrangling"
+author: "James Dalgleish"
+date: "September 20, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+library(readr)
+#setwd("data")
+# litters_data = readr::read_csv(file = "./data/FAS_litters.csv")
+# names(litters_data)
+# litters_data = janitor::clean_names(litters_data) #overwrite with a new version with cleaner names.
+# names(litters_data)
+# #loading pups dataset.
+# pups_data = janitor::clean_names(
+#   readr::read_csv(file = "./data/FAS_pups.csv")
+# )
+# names(pups_data)
+# #absolute paths
+# pups_data = janitor::clean_names(
+#   readr::read_csv(file = "C:/Users/dalgleish/Dropbox/Documents/columbia/p8105/lecture/data_import_p8105_jld2227/data/FAS_pups.csv")
+# )
+# names(pups_data)
+## Look at data.
+
+```
+```{r data_import}
+options(tibble.print_min = 3)
+
+litters_data = read_csv("./data/FAS_litters.csv",
+  col_types = "ccddiiii")
+litters_data = janitor::clean_names(litters_data)
+
+pups_data = read_csv("./data/FAS_pups.csv",
+  col_types = "ciiiii")
+pups_data = janitor::clean_names(pups_data)
+
+```
+##Select Variables
+```{r select}
+select(litters_data, group,  litter_number, gd0_weight)
+select(litters_data, group,  gd0_weight, litter_number)
+```
+```{r select_range}
+select(litters_data, group, gd_of_birth:pups_survive)
+```
+```{r deselect}
+select(litters_data, -litter_number)
+```
+```{r rename}
+select(litters_data, group,  litter_number, gest_day_0_weight = gd0_weight)
+rename(litters_data, gest_day_0_weight = gd0_weight)
+```
+... use select helpers:
+
+```{r start_with}
+select(litters_data,starts_with("gd"))
+select(litters_data,litter_number,starts_with("gd"))
+select(litters_data, litter_number, everything()) #everything that gives everything that you haven't already selected. You can put the more important variables  on the left.
+```
+
+```{r select_pups}
+select(pups_data,litter_number, sex,pd_ears)
+```
+Do some filtering!!!
+```{r filter}
+filter(litters_data, gd0_weight < 25)
+filter(litters_data, gd0_weight >= 25)
+filter(litters_data, pups_born_alive == 8)
+filter(litters_data, !is.na(gd0_weight))
+filter(litters_data, group == "Low8" | group == "Low7")
+filter(litters_data, group %in% c("Low7","Low8"))
+filter(litters_data, pups_born_alive %in% 4:7, !is.na(gd0_weight))
+```
+
+##Mutate
+```{r mutate}
+mutate(litters_data,  wt_gain = gd18_weight - gd0_weight,
+  group = tolower(group)
+)
+mutate(litters_data,  wt_gain = gd18_weight - gd0_weight,
+  group = tolower(group),
+  wt_gain_squared = 
+)
+
+```
+
+```{r arrange}
+arrange(litters_data, desc(gd0_weight))
+head(arrange(litters_data, group, pups_born_alive), 10)
+```
+```{r without_pipes}
+litters_data_raw = read_csv("./data/FAS_litters.csv",
+  col_types = "ccddiiii")
+litters_data_clean_names = janitor::clean_names(litters_data_raw)
+litters_data_selected_cols = select(litters_data_clean_names, -pups_survive)
+litters_data_with_vars = mutate(litters_data_selected_cols, 
+  wt_gain = gd18_weight - gd0_weight,
+  group = tolower(group))
+litters_data_with_vars
+```
+
+```{r pipes}
+
+```
+
